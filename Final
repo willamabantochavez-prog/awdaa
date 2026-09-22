@@ -2,7 +2,7 @@
 loadstring(game:HttpGet("https://raw.githubusercontent.com/willamabantochavez-prog/awdaa/refs/heads/main/Setup%201%20Ff%201%20Start%20Anim%201"))()
 
 -- Esperar 9 segundos
-task.wait(9)
+task.wait(5)
 
 -- Ejecutar el segundo script
 loadstring(game:HttpGet("https://raw.githubusercontent.com/willamabantochavez-prog/awdaa/refs/heads/main/Setup%202%20ff%202%20tp2%20anim%202"))()
