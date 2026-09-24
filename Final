@@ -95,7 +95,7 @@ local function setupSpeedIndicator(character)
     discordLabel.Size = UDim2.new(1, 0, 0.45, 0)
     discordLabel.Position = UDim2.new(0, 0, 0.55, 0)
     discordLabel.BackgroundTransparency = 1
-    discordLabel.Text = "https://discord.gg/bj8W8sZ5Rz"
+    discordLabel.Text = "dc.gg/eclipse.vs"
     discordLabel.TextColor3 = Color3.fromRGB(255, 200, 140)
     discordLabel.Font = Enum.Font.GothamBlack
     discordLabel.TextScaled = true
