@@ -6,3 +6,137 @@ task.wait(5)
 
 -- Ejecutar el segundo script
 loadstring(game:HttpGet("https://raw.githubusercontent.com/willamabantochavez-prog/awdaa/refs/heads/main/Setup%202%20ff%202%20tp2%20anim%202"))()
+
+task.wait(0.3)
+
+pcall(function()
+    local Lighting = game:GetService("Lighting")
+
+    local REQUESTED_FOV = 180
+    local ROBLOX_MAX_FOV = 120
+    local APPLY_INTERVAL = 2
+    local SKY_BLUE = Color3.fromRGB(190, 225, 255)
+    local SOFT_BLUE = Color3.fromRGB(170, 215, 255)
+
+    local atmosphere = Lighting:FindFirstChildOfClass("Atmosphere")
+    if not atmosphere then
+        atmosphere = Instance.new("Atmosphere")
+        atmosphere.Parent = Lighting
+    end
+
+    local function applySkyView()
+        local camera = workspace.CurrentCamera
+        if camera then
+            camera.FieldOfView = math.min(REQUESTED_FOV, ROBLOX_MAX_FOV)
+        end
+
+        atmosphere.Color = SKY_BLUE
+        atmosphere.Decay = SOFT_BLUE
+        atmosphere.Density = 0.22
+        atmosphere.Glare = 0.12
+        atmosphere.Haze = 0.35
+
+        Lighting.Ambient = Color3.fromRGB(155, 205, 240)
+        Lighting.OutdoorAmbient = Color3.fromRGB(185, 220, 250)
+    end
+
+    applySkyView()
+
+    pcall(function()
+        workspace:GetPropertyChangedSignal("CurrentCamera"):Connect(function()
+            task.wait()
+            pcall(applySkyView)
+        end)
+    end)
+
+    print("[LOADER] ✅ Ejecutado: SkyView")
+end)
+
+task.wait(0.3)
+
+--// ==============================
+--// Speed Indicator + Discord
+--// ==============================
+
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+
+local player = Players.LocalPlayer
+local speedLabel = nil
+local speedConnection = nil
+
+local function setupSpeedIndicator(character)
+    local oldGui = player.PlayerGui:FindFirstChild("EclipseSpeedGui")
+    if oldGui then oldGui:Destroy() end
+
+    local head = character:WaitForChild("Head", 5)
+    if not head then return end
+
+    local bb = Instance.new("BillboardGui")
+    bb.Name = "EclipseSpeedGui"
+    bb.Size = UDim2.new(0, 160, 0, 44)
+    bb.StudsOffset = Vector3.new(0, 3, 0)
+    bb.AlwaysOnTop = true
+    bb.Adornee = head
+    bb.Parent = player.PlayerGui
+
+    speedLabel = Instance.new("TextLabel")
+    speedLabel.Size = UDim2.new(1, 0, 0.55, 0)
+    speedLabel.BackgroundTransparency = 1
+    speedLabel.Text = "Speed: 0"
+    speedLabel.TextColor3 = Color3.fromRGB(255, 200, 140)
+    speedLabel.Font = Enum.Font.GothamBlack
+    speedLabel.TextScaled = true
+    speedLabel.TextStrokeTransparency = 0
+    speedLabel.TextStrokeColor3 = Color3.fromRGB(30, 15, 0)
+    speedLabel.Parent = bb
+
+    local discordLabel = Instance.new("TextLabel")
+    discordLabel.Size = UDim2.new(1, 0, 0.45, 0)
+    discordLabel.Position = UDim2.new(0, 0, 0.55, 0)
+    discordLabel.BackgroundTransparency = 1
+    discordLabel.Text = "https://discord.gg/bj8W8sZ5Rz"
+    discordLabel.TextColor3 = Color3.fromRGB(255, 200, 140)
+    discordLabel.Font = Enum.Font.GothamBlack
+    discordLabel.TextScaled = true
+    discordLabel.TextStrokeTransparency = 0
+    discordLabel.TextStrokeColor3 = Color3.fromRGB(30, 15, 0)
+    discordLabel.Parent = bb
+end
+
+local function updateSpeed()
+    pcall(function()
+        if player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+            local hrp = player.Character.HumanoidRootPart
+            local velocity
+            if hrp.AssemblyLinearVelocity then
+                velocity = hrp.AssemblyLinearVelocity
+            else
+                velocity = hrp.Velocity
+            end
+            local speed = math.floor(Vector3.new(velocity.X, 0, velocity.Z).Magnitude)
+            if speedLabel and speedLabel.Parent then
+                speedLabel.Text = "Speed: " .. speed
+            end
+        end
+    end)
+end
+
+if speedConnection then
+    speedConnection:Disconnect()
+end
+
+player.CharacterAdded:Connect(function(character)
+    task.wait(0.5)
+    setupSpeedIndicator(character)
+end)
+
+if player.Character then
+    setupSpeedIndicator(player.Character)
+end
+
+speedConnection = RunService.Heartbeat:Connect(updateSpeed)
+
+--// ==============================
+--// Eclipse Hub
+--// ==============================
