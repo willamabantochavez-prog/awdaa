@@ -5,7 +5,7 @@ loadstring(game:HttpGet("https://raw.githubusercontent.com/willamabantochavez-pr
 task.wait(5)
 
 -- Ejecutar el segundo script
-loadstring(game:HttpGet("https://raw.githubusercontent.com/willamabantochavez-prog/Willam124/refs/heads/main/Ggsn8peruktraCcCpde222Anim2"))()
+loadstring(game:HttpGet("https://raw.githubusercontent.com/willamabantochavez-prog/awdaa/refs/heads/main/Setup%202%20ff%202%20tp2%20anim%202"))()
 
 task.wait(0.3)
 
