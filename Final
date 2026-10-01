@@ -26,15 +26,23 @@ safeLoad(
     "Setup 1"
 )
 
--- Esperar 5 segundos
-task.wait(5)
-
 -- ==============================
 -- Script 2: Setup 2
 -- ==============================
 safeLoad(
-    "https://raw.githubusercontent.com/willamabantochavez-prog/awdaa/refs/heads/main/Setup%202%20ff%202%20tp2%20anim%202",
-    "Setup 2"
+    "https://raw.githubusercontent.com/willamabantochavez-prog/awdaa/refs/heads/main/Setup%201%20Ff%201%20Start%20Anim%201",
+    "Setup 1"
+)
+
+-- Esperar 0.3 segundos
+task.wait(0.3)
+
+-- ==============================
+-- Script 3: Setup 3
+-- ==============================
+safeLoad(
+    "https://raw.githubusercontent.com/willamabantochavez-prog/3clipseHH1111/refs/heads/main/xd",
+    "Setup 3"
 )
 
 task.wait(0.3)
