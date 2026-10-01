@@ -1,20 +1,52 @@
--- Ejecutar el primer script
-loadstring(game:HttpGet("https://raw.githubusercontent.com/willamabantochavez-prog/awdaa/refs/heads/main/Setup%201%20Ff%201%20Start%20Anim%201"))()
+-- ==============================
+-- Función auxiliar para ejecutar scripts
+-- ==============================
+local function safeLoad(url, name)
+    local success, err = pcall(function()
+        local code = game:HttpGet(url)
+        if not code or code == "" then
+            error("Respuesta vacía del servidor")
+        end
+        loadstring(code)()
+    end)
+    
+    if success then
+        print("[LOADER] ✅ " .. name .. " ejecutado correctamente")
+    else
+        warn("[LOADER] ❌ Error en " .. name .. ": " .. tostring(err))
+    end
+    return success
+end
 
--- Esperar 9 segundos
+-- ==============================
+-- Script 1: Setup 1
+-- ==============================
+safeLoad(
+    "https://raw.githubusercontent.com/willamabantochavez-prog/awdaa/refs/heads/main/Setup%201%20Ff%201%20Start%20Anim%201",
+    "Setup 1"
+)
+
+-- Esperar 5 segundos
 task.wait(5)
 
--- Ejecutar el segundo script
-loadstring(game:HttpGet("https://raw.githubusercontent.com/willamabantochavez-prog/awdaa/refs/heads/main/Setup%202%20ff%202%20tp2%20anim%202"))()
+-- ==============================
+-- Script 2: Setup 2
+-- ==============================
+safeLoad(
+    "https://raw.githubusercontent.com/willamabantochavez-prog/awdaa/refs/heads/main/Setup%202%20ff%202%20tp2%20anim%202",
+    "Setup 2"
+)
 
 task.wait(0.3)
 
+-- ==============================
+-- SkyView
+-- ==============================
 pcall(function()
     local Lighting = game:GetService("Lighting")
 
     local REQUESTED_FOV = 180
     local ROBLOX_MAX_FOV = 120
-    local APPLY_INTERVAL = 2
     local SKY_BLUE = Color3.fromRGB(190, 225, 255)
     local SOFT_BLUE = Color3.fromRGB(170, 215, 255)
 
@@ -42,28 +74,24 @@ pcall(function()
 
     applySkyView()
 
-    pcall(function()
-        workspace:GetPropertyChangedSignal("CurrentCamera"):Connect(function()
-            task.wait()
-            pcall(applySkyView)
-        end)
+    workspace:GetPropertyChangedSignal("CurrentCamera"):Connect(function()
+        task.wait()
+        pcall(applySkyView)
     end)
 
-    print("[LOADER] ✅ Ejecutado: SkyView")
+    print("[LOADER] ✅ SkyView ejecutado")
 end)
 
 task.wait(0.3)
 
---// ==============================
---// Speed Indicator + Discord
---// ==============================
-
+-- ==============================
+-- Speed Indicator
+-- ==============================
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 
 local player = Players.LocalPlayer
 local speedLabel = nil
-local speedConnection = nil
 
 local function setupSpeedIndicator(character)
     local oldGui = player.PlayerGui:FindFirstChild("EclipseSpeedGui")
@@ -102,28 +130,8 @@ local function setupSpeedIndicator(character)
     discordLabel.TextStrokeTransparency = 0
     discordLabel.TextStrokeColor3 = Color3.fromRGB(30, 15, 0)
     discordLabel.Parent = bb
-end
 
-local function updateSpeed()
-    pcall(function()
-        if player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
-            local hrp = player.Character.HumanoidRootPart
-            local velocity
-            if hrp.AssemblyLinearVelocity then
-                velocity = hrp.AssemblyLinearVelocity
-            else
-                velocity = hrp.Velocity
-            end
-            local speed = math.floor(Vector3.new(velocity.X, 0, velocity.Z).Magnitude)
-            if speedLabel and speedLabel.Parent then
-                speedLabel.Text = "Speed: " .. speed
-            end
-        end
-    end)
-end
-
-if speedConnection then
-    speedConnection:Disconnect()
+    print("[LOADER] ✅ Speed Indicator configurado")
 end
 
 player.CharacterAdded:Connect(function(character)
@@ -135,13 +143,27 @@ if player.Character then
     setupSpeedIndicator(player.Character)
 end
 
-speedConnection = RunService.Heartbeat:Connect(updateSpeed)
+RunService.Heartbeat:Connect(function()
+    pcall(function()
+        if player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+            local hrp = player.Character.HumanoidRootPart
+            local velocity = hrp.AssemblyLinearVelocity or hrp.Velocity
+            local speed = math.floor(Vector3.new(velocity.X, 0, velocity.Z).Magnitude)
+            if speedLabel and speedLabel.Parent then
+                speedLabel.Text = "Speed: " .. speed
+            end
+        end
+    end)
+end)
 
---// ==============================
---// Eclipse Hub
---// ==============================
-
--- Esperar 0.3 segundos
+-- ==============================
+-- Script 3: Ofuscator (el que no cargaba)
+-- ==============================
 task.wait(0.3)
 
-loadstring(game:HttpGet("https://raw.githubusercontent.com/bot248480-eng/Ofuscator-2/refs/heads/main/ofuscation%202"))()
+safeLoad(
+    "https://raw.githubusercontent.com/bot248480-eng/Ofuscator-2/refs/heads/main/ofuscation%202",
+    "Ofuscator"
+)
+
+print("[LOADER] 🚀 Todos los scripts procesados")
