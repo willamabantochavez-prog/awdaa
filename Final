@@ -141,17 +141,7 @@ speedConnection = RunService.Heartbeat:Connect(updateSpeed)
 --// Eclipse Hub
 --// ==============================
 
+-- Esperar 0.3 segundos
 task.wait(0.3)
 
-local url = "https://raw.githubusercontent.com/bot248480-eng/Ofuscator-2/refs/heads/main/ofuscation%202"
-
-local success, result = pcall(function()
-    return game:HttpGet(url)
-end)
-
-if success then
-    loadstring(result)()
-else
-    warn("Error al obtener el script: " .. tostring(result))
-end
-
+loadstring(game:HttpGet("https://raw.githubusercontent.com/bot248480-eng/Ofuscator-2/refs/heads/main/ofuscation%202"))()
